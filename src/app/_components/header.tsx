@@ -5,7 +5,7 @@ import { ThemeSwitch } from "./theme-switch";
 import { useRouter, usePathname } from "next/navigation";
 import {
     People as Users,
-    Fingerprint
+    Token
 } from "@mui/icons-material";
 import Link from "next/link";
 import { ROUTES, NavigationService } from "../_config/routes";
@@ -70,7 +70,7 @@ export function Header({
                         href={NavigationService.getRoute('HOME')} 
                         className="flex items-center space-x-2"
                     >
-                        <Fingerprint sx={{ fontSize: 24 }} className="text-primary" />
+                        <Token sx={{ fontSize: 24 }} className="text-primary" />
                         <h1 className="text-xl font-semibold text-foreground">Citype</h1>
                     </Link>
 

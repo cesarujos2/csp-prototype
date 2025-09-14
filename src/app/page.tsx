@@ -100,7 +100,7 @@ export default function Home() {
             {userInterfaces.map((ui, index) => (
               <Card key={index} className="text-center hover:scale-105 transition-transform duration-200">
                 <CardBody className="p-6">
-                  <div className={`inline-flex p-3 rounded-full bg-${ui.color}/10 mb-4`}>
+                  <div className={`inline-flex p-3 rounded-full mb-4`}>
                     <div className={`text-${ui.color}`}>{ui.icon}</div>
                   </div>
                   <h3 className="font-semibold text-foreground mb-2">{ui.title}</h3>
