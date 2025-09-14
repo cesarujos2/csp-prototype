@@ -5,17 +5,24 @@ import {
   Card,
   CardBody,
   Chip} from "@heroui/react";
-import { ThemeSwitch } from "./_components/theme-switch";
+import { HomeHeader } from "./_components/header";
+import { useRouter } from "next/navigation";
+import { NavigationService, RouteKey } from "./_config/routes";
 import {
   Security as Shield,
   People as Users,
   Monitor,
   PhoneAndroid as Phone,
-  KeyboardArrowRight,
-  Fingerprint
+  KeyboardArrowRight
 } from "@mui/icons-material";
 
 export default function Home() {
+  const router = useRouter();
+
+  const handleNavigation = (routeKey: RouteKey) => {
+    const route = NavigationService.getRoute(routeKey);
+    router.push(route);
+  };
 
   const userInterfaces = [
     {
@@ -47,28 +54,7 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <Fingerprint sx={{ fontSize: 24 }} className="text-primary" />
-              <h1 className="text-xl font-semibold text-foreground">Citype</h1>
-            </div>
-            <div className="flex items-center gap-4">
-              <ThemeSwitch />
-              <div className="h-6 w-[1px] bg-divider" />
-              <Button 
-                variant="light"
-                size="sm"
-                className="font-medium"
-                startContent={<Users sx={{ fontSize: 18 }} />}
-              >
-                Iniciar sesión
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <HomeHeader />
 
       {/* Hero Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 min-h-[calc(100vh-64px)] grid items-center">
@@ -88,7 +74,13 @@ export default function Home() {
             orientado a optimizar rutas de patrullaje, gestionar recursos y responder eficientemente a incidentes ciudadanos.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button color="primary" size="lg" className="font-semibold" endContent={<KeyboardArrowRight sx={{ fontSize: 20 }} />}>
+            <Button 
+              color="primary" 
+              size="lg" 
+              className="font-semibold" 
+              endContent={<KeyboardArrowRight sx={{ fontSize: 20 }} />} 
+              onPress={() => handleNavigation('AUTH')}
+            >
               Comenzar
             </Button>
           </div>
