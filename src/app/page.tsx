@@ -61,7 +61,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto text-center">
           <div className="mb-8">
             <Chip color="primary" variant="flat" size="md">
-              🎯 Prototipo de Sistema de Seguridad Municipal
+              🎯 Prototipo
             </Chip>
           </div>
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6">

@@ -23,7 +23,7 @@ export default function AuthPage() {
                                 <h1 className="text-2xl md:text-lg lg:text-xl font-bold text-foreground leading-tight">
                                     Bienvenido a
                                     <br />
-                                    <span className="text-3xl md:text-4xl lg:text-5xl bg-gradient-to-r from-primary via-primary to-secondary bg-clip-text text-transparent">
+                                    <span className="text-3xl md:text-4xl lg:text-5xl bg-gradient-to-r from-primary-600 via-primary to-primary-500 bg-clip-text text-transparent">
                                         Citype
                                     </span>
                                 </h1>
@@ -68,6 +68,7 @@ export default function AuthPage() {
                                 <Button
                                     variant="light"
                                     size="sm"
+                                    color="primary"
                                     className="p-1 h-auto"
                                 >
                                     Términos
@@ -76,6 +77,7 @@ export default function AuthPage() {
                                 <Button
                                     variant="light"
                                     size="sm"
+                                    color="primary"
                                     className="p-1 h-auto"
                                 >
                                     Privacidad
