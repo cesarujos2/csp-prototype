@@ -4,10 +4,10 @@ import {
   Button,
   Card,
   CardBody,
-  Chip} from "@heroui/react";
-import { HomeHeader } from "./_components/header";
-import { useRouter } from "next/navigation";
-import { NavigationService, RouteKey } from "./_config/routes";
+  Chip
+} from "@heroui/react";
+import { HomeHeader } from "./_components/HomeHeader";
+import { usePageRouter } from "./_hooks/usePageRouter";
 import {
   Security as Shield,
   People as Users,
@@ -15,13 +15,13 @@ import {
   PhoneAndroid as Phone,
   KeyboardArrowRight
 } from "@mui/icons-material";
+import { PageRoute } from "./_types/route.type";
 
 export default function Home() {
-  const router = useRouter();
+  const router = usePageRouter();
 
-  const handleNavigation = (routeKey: RouteKey) => {
-    const route = NavigationService.getRoute(routeKey);
-    router.push(route);
+  const handleNavigation = (routeKey: PageRoute) => {
+    router.goTo(routeKey)
   };
 
   const userInterfaces = [
@@ -74,11 +74,11 @@ export default function Home() {
             orientado a optimizar rutas de patrullaje, gestionar recursos y responder eficientemente a incidentes ciudadanos.
           </p>
           <div className="flex gap-4 justify-center">
-            <Button 
-              color="primary" 
-              size="lg" 
-              className="font-semibold" 
-              endContent={<KeyboardArrowRight sx={{ fontSize: 20 }} />} 
+            <Button
+              color="primary"
+              size="lg"
+              className="font-semibold"
+              endContent={<KeyboardArrowRight sx={{ fontSize: 20 }} />}
               onPress={() => handleNavigation('AUTH')}
             >
               Comenzar

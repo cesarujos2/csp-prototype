@@ -3,55 +3,54 @@
  * Centralized route management to avoid hardcoded URLs
  */
 
-export const ROUTES = {
-  HOME: '/',
-  AUTH: '/auth',
-  DASHBOARD: '/dashboard'
-} as const;
+import { PageRouteData, RouteData } from "../_types/route.type";
 
-export type RouteKey = keyof typeof ROUTES;
-export type RouteValue = typeof ROUTES[RouteKey];
-
-/**
- * Navigation utilities
- */
-export class NavigationService {
-  /**
-   * Get route by key
-   */
-  static getRoute(key: RouteKey): RouteValue {
-    return ROUTES[key];
-  }
-
-  /**
-   * Check if current path matches route
-   */
-  static isCurrentRoute(currentPath: string, routeKey: RouteKey): boolean {
-    return currentPath === ROUTES[routeKey];
-  }
-
-  /**
-   * Get all available routes
-   */
-  static getAllRoutes(): Record<RouteKey, RouteValue> {
-    return ROUTES;
-  }
-}
-
-/**
- * Route metadata for navigation components
- */
-export const ROUTE_METADATA = {
-  [ROUTES.HOME]: {
-    title: 'Inicio',
-    description: 'Página principal del sistema'
+export const API_ROUTES = {
+  AUTH_SIGNIN: {
+    path: '/api/auth/signin',
+    isPublic: true,
   },
-  [ROUTES.AUTH]: {
-    title: 'Autenticación',
-    description: 'Iniciar sesión en el sistema'
+  AUTH_CALLBACK: {
+    path: '/api/auth/callback',
+    isPublic: true,
   },
-  [ROUTES.DASHBOARD]: {
-    title: 'Panel de Control',
-    description: 'Dashboard principal'
+  USER_COMPLETE_PROFILE: {
+    path: '/api/user/complete-profile',
+    isPublic: false,
   },
-} as const;
+} as const satisfies Record<string, RouteData>;
+
+export const PAGE_ROUTES = {
+  HOME: {
+    path: '/',
+    isPublic: true,
+    meta: {
+      title: 'Inicio',
+      description: 'Página principal del sistema',
+    },
+  },
+  AUTH: {
+    path: '/auth',
+    isPublic: true,
+    meta: {
+      title: 'Autenticación',
+      description: 'Iniciar sesión en el sistema',
+    },
+  },
+  DASHBOARD: {
+    path: '/dashboard',
+    isPublic: false,
+    meta: {
+      title: 'Panel de Control',
+      description: 'Dashboard principal',
+    },
+  },
+  COMPLETE_PROFILE: {
+    path: '/complete-profile',
+    isPublic: false,
+    meta: {
+      title: 'Completar Perfil',
+      description: 'Completa tu perfil para acceder al sistema',
+    },
+  },
+} as const satisfies Record<string, PageRouteData>;

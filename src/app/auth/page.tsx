@@ -1,10 +1,32 @@
 "use client";
 
 import { Button } from "@heroui/react";
-import { AuthHeader } from "../_components/header";
+import { AuthHeader } from "./_components/AuthHeader";
 import { Google } from "@mui/icons-material";
+import { signIn, useSession } from "next-auth/react";
+import { PageRoutesConfigService } from "../_services/page-routes-config.service";
 
 export default function AuthPage() {
+    const session = useSession();
+
+    const handleGoogleSignIn = async () => {
+        try {
+            await signIn("google", { callbackUrl: PageRoutesConfigService.getPath("DASHBOARD") });
+        } catch (error) {
+            console.error("Error signing in:", error);
+        }
+    };
+
+    if (session.status === "loading") {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+                    <p className="text-foreground-500">Cargando...</p>
+                </div>
+            </div>
+        );
+    }
 
 
     return (
@@ -13,7 +35,7 @@ export default function AuthPage() {
             <AuthHeader />
 
             {/* Main Content */}
-            <div className="min-h-[calc(100vh-64px)] flex flex-col md:flex-row">
+            <div className="min-h-[calc(100vh-64px)] flex flex-col md:flex-row p-8">
                 {/* Left Side - Branding & Welcome */}
                 <div className="flex md:w-1/2 items-center justify-center px-6 py-6 md:px-8 md:py-12 lg:px-16">
                     <div className="max-w-lg text-center md:text-left space-y-4 md:space-y-8">
@@ -57,8 +79,11 @@ export default function AuthPage() {
                                 size="md"
                                 className="w-full h-11 md:h-14 font-medium bg-gradient-to-r from-white/5 to-white/10 hover:from-white/10 hover:to-white/15 backdrop-blur-sm transition-all duration-300 shadow-lg hover:shadow-xl border-0 text-sm md:text-base"
                                 startContent={<Google sx={{ fontSize: 20 }} className="text-[#4285F4] md:text-[24px]" />}
+                                onPress={handleGoogleSignIn}
                             >
-                                <span className="text-foreground-700">Google</span>
+                                <span className="text-foreground-700">
+                                    Continuar con Google
+                                </span>
                             </Button>
                         </div>
 
