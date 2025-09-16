@@ -4,18 +4,21 @@ import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { Button, Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from '@heroui/react';
 import { SwapHoriz } from '@mui/icons-material';
+import { usePageRouter } from '@/app/_hooks/usePageRouter';
+import { PageRoute } from '@/app/_types/route.type';
 
-type UserRole = "OWNER" | "ADMIN" | "MONITORING" | "OFFICER" | "USER";
+type Role = "OWNER" | "ADMIN" | "MONITORING" | "OFFICER" | "USER";
 
 interface RoleChangerProps {
-  onRoleChange?: (newRole: UserRole) => void;
+  onRoleChange?: (newRole: Role) => void;
 }
 
 export const RoleChanger: React.FC<RoleChangerProps> = ({ onRoleChange }) => {
   const { data: session, update } = useSession();
   const [isChanging, setIsChanging] = useState(false);
+  const router = usePageRouter();
 
-  const roles: { key: UserRole; label: string; color: string }[] = [
+  const roles: { key: Role; label: string; color: string }[] = [
     { key: "OWNER", label: "Propietario", color: "text-purple-600" },
     { key: "ADMIN", label: "Administrador", color: "text-red-600" },
     { key: "MONITORING", label: "Monitoreo", color: "text-blue-600" },
@@ -23,9 +26,20 @@ export const RoleChanger: React.FC<RoleChangerProps> = ({ onRoleChange }) => {
     { key: "USER", label: "Usuario", color: "text-gray-600" },
   ];
 
-  const currentRole = typeof session?.user?.role === 'string' ? session.user.role as UserRole : "USER";
+  const currentRole = typeof session?.user?.role === 'string' ? session.user.role as Role : "USER";
 
-  const handleRoleChange = async (newRole: UserRole) => {
+  const getRoleBasedRoute = (role: Role): PageRoute => {
+    const roleRouteMap: Record<Role, PageRoute> = {
+      OWNER: 'OWNER',
+      ADMIN: 'ADMIN', 
+      MONITORING: 'MONITORING',
+      OFFICER: 'OFFICER',
+      USER: 'USER'
+    };
+    return roleRouteMap[role];
+  };
+
+  const handleRoleChange = async (newRole: Role) => {
     if (newRole === currentRole || isChanging) return;
 
     setIsChanging(true);
@@ -51,6 +65,10 @@ export const RoleChanger: React.FC<RoleChangerProps> = ({ onRoleChange }) => {
 
         // Call the optional callback
         onRoleChange?.(newRole);
+
+        // Redirect to the appropriate dashboard for the new role
+        const targetRoute = getRoleBasedRoute(newRole);
+        router.goTo(targetRoute);
       } else {
         console.error('Failed to change role');
       }
@@ -76,7 +94,7 @@ export const RoleChanger: React.FC<RoleChangerProps> = ({ onRoleChange }) => {
       </DropdownTrigger>
       <DropdownMenu 
         aria-label="Change Role"
-        onAction={(key) => handleRoleChange(key as UserRole)}
+        onAction={(key) => handleRoleChange(key as Role)}
         disabledKeys={[currentRole]}
       >
         {roles.map((role) => (

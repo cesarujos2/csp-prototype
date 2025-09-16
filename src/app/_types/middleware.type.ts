@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { JWT } from "next-auth/jwt";
 import { PageRoute, PageRouteData } from "./route.type";
+import { Role } from "@prisma/client";
 
 /**
  * Extended NextAuth JWT token with custom properties
@@ -24,6 +25,7 @@ export interface AuthenticatedRequest extends NextRequest {
 export interface AuthState {
   isAuthenticated: boolean;
   profileComplete: boolean;
+  role?: Role;
   token: ExtendedJWT | null;
 }
 
@@ -34,8 +36,10 @@ export interface PageContext {
   pathname: string;
   isAuthPage: boolean;
   isDashboard: boolean;
+  isMainDashboard: boolean;
   isCompleteProfilePage: boolean;
-  pageRoute: PageRouteData | null;
+  pageRoute: PageRoute | null;
+  pageRouteData: PageRouteData | null;
 }
 
 /**

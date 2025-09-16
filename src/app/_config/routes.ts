@@ -53,4 +53,44 @@ export const PAGE_ROUTES = {
       description: 'Completa tu perfil para acceder al sistema',
     },
   },
+  OWNER: {
+    path: '/dashboard/owner',
+    isPublic: false,
+    meta: {
+      title: 'Panel de Propietario',
+      description: 'Panel de control para propietarios del sistema',
+    },
+  },
+  ADMIN: {
+    path: '/dashboard/admin',
+    isPublic: false,
+    meta: {
+      title: 'Panel de Administrador',
+      description: 'Panel de control para administradores',
+    },
+  },
+  MONITORING: {
+    path: '/dashboard/monitoring',
+    isPublic: false,
+    meta: {
+      title: 'Panel de Monitoreo',
+      description: 'Panel de monitoreo y supervisión',
+    },
+  },
+  OFFICER: {
+    path: '/dashboard/officer',
+    isPublic: false,
+    meta: {
+      title: 'Panel de Oficial',
+      description: 'Panel de control para oficiales',
+    },
+  },
+  USER: {
+    path: '/dashboard/user',
+    isPublic: false,
+    meta: {
+      title: 'Panel de Usuario',
+      description: 'Panel de control para usuarios',
+    },
+  },
 } as const satisfies Record<string, PageRouteData>;

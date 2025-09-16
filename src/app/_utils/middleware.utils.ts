@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { PageRoutesConfigService } from "../_services/page-routes-config.service";
 import { MiddlewareRedirectService } from "../_services/middleware-redirect.service";
 import { MiddlewareLoggerService } from "../_services/middleware-logger.service";
+import { Role } from "@prisma/client";
 import {
   AuthenticatedRequest,
   AuthState,
@@ -11,6 +12,27 @@ import {
   RedirectConfig,
   RedirectReason
 } from "../_types/middleware.type";
+import { PageRoute } from "../_types/route.type";
+
+/**
+ * Gets role-based redirect configuration
+ */
+export function getRoleBasedRedirect(role?: Role): RedirectConfig {
+  const roleRouteMap: Record<Role, PageRoute> = {
+    OWNER: 'OWNER',
+    ADMIN: 'ADMIN', 
+    MONITORING: 'MONITORING',
+    OFFICER: 'OFFICER',
+    USER: 'USER'
+  };
+  
+  const targetRoute = role && roleRouteMap[role] ? roleRouteMap[role] : 'USER';
+  
+  return {
+    to: targetRoute,
+    reason: RedirectReason.ALREADY_AUTHENTICATED
+  };
+}
 
 /**
  * Extracts authentication state from the request
@@ -20,6 +42,7 @@ export function extractAuthState(req: AuthenticatedRequest): AuthState {
   return {
     isAuthenticated: !!token,
     profileComplete: token?.profileComplete ?? false,
+    role: token?.role,
     token
   };
 }
@@ -29,14 +52,15 @@ export function extractAuthState(req: AuthenticatedRequest): AuthState {
  */
 export function extractPageContext(req: AuthenticatedRequest): PageContext {
   const pathname = req.nextUrl.pathname;
-  const pageRoute = PageRoutesConfigService.getRouteByPath(pathname);
   
   return {
     pathname,
     isAuthPage: pathname.startsWith(PageRoutesConfigService.getPath("AUTH")),
     isDashboard: pathname.startsWith(PageRoutesConfigService.getPath("DASHBOARD")),
+    isMainDashboard: pathname === PageRoutesConfigService.getPath("DASHBOARD"),
     isCompleteProfilePage: pathname.startsWith(PageRoutesConfigService.getPath("COMPLETE_PROFILE")),
-    pageRoute
+    pageRouteData: PageRoutesConfigService.getRouteDataByPath(pathname),
+    pageRoute: PageRoutesConfigService.getRouteByPath(pathname)
   };
 }
 
@@ -72,9 +96,10 @@ export function handleAuthenticatedOnAuthPage(context: MiddlewareContext): Middl
     };
   }
   
+  // Redirect to role-specific route based on user role
   return {
     action: 'redirect',
-    redirect: redirects.toDashboard
+    redirect: getRoleBasedRedirect(auth.role)
   };
 }
 
@@ -97,7 +122,7 @@ export function handleIncompleteProfile(context: MiddlewareContext): MiddlewareD
   const { page } = context;
   
   // Allow access to complete profile page and public pages
-  if (page.isCompleteProfilePage || page.pageRoute?.isPublic) {
+  if (page.isCompleteProfilePage || page.pageRouteData?.isPublic) {
     return { action: 'allow' };
   }
   
@@ -114,21 +139,65 @@ export function handleIncompleteProfile(context: MiddlewareContext): MiddlewareD
  */
 export function handleCompleteProfilePageAccess(context: MiddlewareContext): MiddlewareDecision {
   const { auth } = context;
-  const redirects = MiddlewareRedirectService.getCommonRedirects();
   
   // Redirect unauthenticated users to auth
   if (!auth.isAuthenticated) {
+    const redirects = MiddlewareRedirectService.getCommonRedirects();
     return {
       action: 'redirect',
       redirect: redirects.toAuth
     };
   }
   
-  // Redirect users with complete profile to dashboard
+  // Redirect users with complete profile to role-specific route
   if (auth.profileComplete) {
     return {
       action: 'redirect',
-      redirect: redirects.profileCompleted
+      redirect: getRoleBasedRedirect(auth.role)
+    };
+  }
+  
+  return { action: 'allow' };
+}
+
+/**
+ * Handles access to the main dashboard page and redirects to role-specific dashboard
+ */
+export function handleMainDashboardAccess(context: MiddlewareContext): MiddlewareDecision {
+  const { auth } = context;
+  
+  // Redirect authenticated users with complete profile to their role-specific dashboard
+  if (auth.isAuthenticated && auth.profileComplete) {
+    return {
+      action: 'redirect',
+      redirect: getRoleBasedRedirect(auth.role)
+    };
+  }
+  
+  // Allow access for other cases (will be handled by other middleware functions)
+  return { action: 'allow' };
+}
+
+/**
+ * Validates if user is accessing the correct role-specific dashboard
+ */
+export function handleRoleBasedDashboardAccess(context: MiddlewareContext): MiddlewareDecision {
+  const { auth, page } = context;
+  
+  // Only validate for authenticated users with complete profile on dashboard pages
+  if (!auth.isAuthenticated || !auth.profileComplete || !page.isDashboard || page.isMainDashboard) {
+    return { action: 'allow' };
+  }
+  
+  // Get the expected dashboard path for user's role
+  const expectedRedirect = getRoleBasedRedirect(auth.role);
+  const expectedPageRoute = expectedRedirect.to;
+
+  // Check if user is on the wrong dashboard
+  if (page.pageRoute !== expectedPageRoute) {
+    return {
+      action: 'redirect',
+      redirect: expectedRedirect
     };
   }
   
@@ -143,7 +212,7 @@ export function makeMiddlewareDecision(context: MiddlewareContext): MiddlewareDe
   const { auth, page } = context;
   
   // Handle unknown routes
-  if (!page.pageRoute) {
+  if (!page.pageRouteData) {
     return { action: 'allow' };
   }
   
@@ -155,6 +224,16 @@ export function makeMiddlewareDecision(context: MiddlewareContext): MiddlewareDe
   // Handle unauthenticated user trying to access dashboard
   if (page.isDashboard && !auth.isAuthenticated) {
     return handleUnauthenticatedOnDashboard();
+  }
+  
+  // Handle main dashboard access - redirect to role-specific dashboard
+  if (page.isMainDashboard && auth.isAuthenticated && auth.profileComplete) {
+    return handleMainDashboardAccess(context);
+  }
+  
+  // Handle role-based dashboard access validation
+  if (page.isDashboard && !page.isMainDashboard && auth.isAuthenticated && auth.profileComplete) {
+    return handleRoleBasedDashboardAccess(context);
   }
   
   // Handle complete profile page access

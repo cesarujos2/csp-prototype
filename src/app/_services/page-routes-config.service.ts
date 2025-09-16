@@ -16,9 +16,19 @@ export class PageRoutesConfigService {
 
   static getMeta(key: PageRoute): PageRouteMetadata {
     return PAGE_ROUTES[key].meta;
-  } 
+  }
 
-  static getRouteByPath(path: string): PageRouteData | null {
+  static getRouteByPath(path: string): PageRoute | null {
+    for (const key in PAGE_ROUTES) {
+      const keyAsPageRoute = key as PageRoute;
+      if (PAGE_ROUTES[keyAsPageRoute].path === path) {
+        return keyAsPageRoute;
+      }
+    }
+    return null
+  }
+
+  static getRouteDataByPath(path: string): PageRouteData | null {
     for (const key in PAGE_ROUTES) {
       const keyAsPageRoute = key as PageRoute;
       if (PAGE_ROUTES[keyAsPageRoute].path === path) {
