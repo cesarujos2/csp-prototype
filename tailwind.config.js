@@ -74,7 +74,7 @@ const config = {
 
       dark: {
         colors: {
-          background: "#0d1117",
+          background: "#000000",
           foreground: "#e4e4e4", // 🔹 gris claro, no blanco puro
           focus: "#1563c0",
 
