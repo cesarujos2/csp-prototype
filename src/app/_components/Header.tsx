@@ -49,7 +49,7 @@ export function Header({
     const finalLogo = { ...defaultLogo, ...logo };
 
     return (
-        <header className={`sticky top-0 z-50 backdrop-blur-xl bg-background/80 ${className}`}>
+        <header className={`sticky top-0 z-50 backdrop-blur-md ${className}`}> 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo and Brand */}
